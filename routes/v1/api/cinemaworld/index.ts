@@ -18,9 +18,35 @@ router.get("/movies", async (request: Request, response: Response) => {
         } else {
             response.status(200).send({
                 type: `${request.method} ${request.path}`,
-                data: parseMovies(await Movies.find().sort({ [ request.query.sort_by ]: parseInt(request.query.order) }).exec())
+                data: parseMovies(await Movies.find({
+                    ...(request.query.episode) ? {
+                        episode: parseInt(request.query.episode)
+                    } : {},
+                    ...(request.query.search) ? {
+                        name: { $regex: request.query.search,  $options: "i" }
+                    } : {}
+                }).sort({
+                    ...(request.query.sort_by && request.query.order) ? {
+                        [ request.query.sort_by ]: parseInt(request.query.order)
+                    } : {}
+                }).exec())
             });
         }
+    } catch (error) {
+        response.status(500).send({
+            type: `${request.method} ${request.path}`,
+            error: error.message
+        });
+    }
+});
+
+router.get("/movies/episodes", async (request: Request, response: Response) => {
+    try {
+        console.log(await Movies.distinct("episode").exec());
+        response.status(200).send({
+            type: `${request.method} ${request.path}`,
+            data: (await Movies.distinct("episode").exec()).map((episode: Number) => ({ name: "episodes", value: episode }))
+        });
     } catch (error) {
         response.status(500).send({
             type: `${request.method} ${request.path}`,
