@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "utils/*": [ "utils/*" ],
+            "model": [ "mongoose/model/index.ts" ]
+        },
+        "target": "es6",
+        "sourceMap": true,
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true
+    }
+}
